@@ -22,9 +22,7 @@ const aporteJubilatorio = (sueldo) => {
 }
 
 function liquidarSueldo(sueldo){
-    if(sueldo <= 0){
-        console.log("El sueldo debe ser mayor a 0.");
-    }else if(sueldo <= (7*valorBPC)){
+    if(sueldo <= (7*valorBPC)){
         //No tributa IRPF
 
         const aportes = sueldo * (apJubilatorio + apSalud + apFrl);
@@ -45,19 +43,19 @@ function liquidarSueldo(sueldo){
             if(i < 7 * valorBPC){
                 primarioIRPF += 0;
             } else if(i <= 10 * valorBPC && i > 7 * valorBPC){
-                primarioIRPF += 1*0.1;
+                primarioIRPF += 0.1;
             }else if(i <= 15 * valorBPC && i > 10 * valorBPC){
-                primarioIRPF += 1*0.15;
+                primarioIRPF += 0.15;
             }else if(i <= 30 * valorBPC && i > 15 * valorBPC){
-                primarioIRPF += 1*0.24;
+                primarioIRPF += 0.24;
             }else if(i <= 50 * valorBPC && i > 30 * valorBPC){
-                primarioIRPF += 1*0.25;
+                primarioIRPF += 0.25;
             }else if(i <= 75 * valorBPC && i > 50 * valorBPC){
-                primarioIRPF += 1*0.27;
+                primarioIRPF += 0.27;
             }else if(i <= 115 * valorBPC && i > 75 * valorBPC){
-                primarioIRPF += 1*0.31;
+                primarioIRPF += 0.31;
             }else if(i > 115 * valorBPC){
-                primarioIRPF += 1*0.36;
+                primarioIRPF += 0.36;
             }
         }
 
@@ -68,8 +66,12 @@ function liquidarSueldo(sueldo){
     }
 }
 
-console.log(`El sueldo líquido de ${sueldoNominal} es ${liquidarSueldo(sueldoNominal)}`);
-console.log(`Aportes jubilatorios: ${aporteJubilatorio(sueldoNominal)}`);
-console.log(`Aportes FONASA (Salud): ${sueldoNominal * apSalud}`);
-console.log(`Aportes FRL: ${sueldoNominal * apFrl}`);
-console.log(`Impuestos (IRPF): ${sueldoNominal - liquidarSueldo(sueldoNominal) - aporteJubilatorio(sueldoNominal) - (sueldoNominal * (apSalud + apFrl))}`);
+if(sueldoNominal <= 0 || isNaN(sueldoNominal)){
+console.log("El sueldo debe ser un número mayor a 0.")
+}else{
+console.log(`El sueldo líquido de $${sueldoNominal} es $${liquidarSueldo(sueldoNominal)}`);
+console.log(`Aportes jubilatorios: $${aporteJubilatorio(sueldoNominal)}`);
+console.log(`Aportes FONASA (Salud): $${sueldoNominal * apSalud}`);
+console.log(`Aportes FRL: $${sueldoNominal * apFrl}`);
+console.log(`Impuestos (IRPF): $${sueldoNominal - liquidarSueldo(sueldoNominal) - aporteJubilatorio(sueldoNominal) - (sueldoNominal * (apSalud + apFrl))}`);
+}
