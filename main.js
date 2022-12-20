@@ -4,6 +4,14 @@ const apFrl = 0.001;
 const valorBPC = 5164;
 const cotDolarUy = 39;
 
+const resultDiv = document.querySelector("#result");
+const form = document.querySelector(".formulario");
+const formNombre = document.querySelector("#name");
+const formSueldo = document.querySelector("#sueldo");
+const formEsExtranjero = document.querySelector("#nacionalidad");
+const errorElement = document.querySelector("#error");
+
+
 class Persona{
     constructor(nombre, sueldo, esExtranjero){
         this.nombre = nombre;
@@ -12,13 +20,28 @@ class Persona{
     }
 }
 
-const sueldo1 = window.prompt("Introduce un sueldo para Juan:");
-const sueldo2 = window.prompt("Introduce un sueldo para Pedro:");
-const sueldo3 = window.prompt("Introduce un sueldo para Camila:");
+function showError(status){
+    if(status){
+        errorElement.style.display = "block";
+    } else{
+        errorElement.style.display = "none";
+    }
 
-const funcionario1 = new Persona("Juan", sueldo1, true);
-const funcionario2 = new Persona("Pedro", sueldo2, false);
-const funcionario3 = new Persona("Camila", sueldo3, false);
+}
+
+function showResult(persona, liquido, aportes, impuestos){
+        resultDiv.innerHTML += `
+        <div class="indivResult">
+            <p>${persona.nombre}</p>
+            <p>${parseFloat(persona.sueldo).toLocaleString()}</p>
+            <p>${persona.esExtranjero ? "Extranjero" : "Uruguayo"}</p>
+            <p>${parseFloat(-aportes).toLocaleString()}</p>
+            <p>${persona.esExtranjero ? "IRNR" : "IRPF"}</p>
+            <p>${(-impuestos).toLocaleString()}</p>
+            <p>${parseFloat(liquido).toLocaleString()}</p>
+        </div>
+        `;
+}
 
 const deducciones = (sueldo, montoAportes) => {
     return (sueldo > 15*valorBPC) ? (montoAportes * 0.08) : (montoAportes * 0.1);
@@ -81,7 +104,7 @@ const liquidacionIRPF = (sueldo) => {
 }
 
 function liquidarSueldo(persona){
-    sueldo = persona.sueldo;
+    const sueldo = persona.sueldo;
 
     if(persona.esExtranjero){
         const irnrAPagar = liquidacionIRNR(sueldo);
@@ -110,24 +133,21 @@ function mostrarResultados(persona){
     }
 }
 
-let listaPersonas = [funcionario1, funcionario2, funcionario3];
-
-console.log("Liquidando el sueldo de " + listaPersonas.length + " personas...");
-
-for(const persona of listaPersonas){
-    mostrarResultados(persona);
+form.onsubmit = (event) => {
+    event.preventDefault();
+    const nombreEnviado = formNombre.value;
+    const sueldoEnviado = formSueldo.value;
+    const nacionalidadEnviadaExtranjero = formEsExtranjero.checked;
+    if(sueldoEnviado <= 0 || isNaN(sueldoEnviado)){
+        showError(true);
+    }else{
+        showError(false);
+        const p = new Persona(nombreEnviado, sueldoEnviado, nacionalidadEnviadaExtranjero);
+        const sueldoLiquido = liquidarSueldo(p);
+        const impuestos = nacionalidadEnviadaExtranjero ? (liquidacionIRNR(p.sueldo).toFixed(0)) : (liquidacionIRPF(p.sueldo).toFixed(0));
+        const aportes = nacionalidadEnviadaExtranjero ? (0) : (((p.sueldo * (apSalud + apFrl)) + aporteJubilatorio(p.sueldo)).toFixed(0));
+        showResult(p, sueldoLiquido, aportes, impuestos);
+        form.reset()
+    }
 }
-
-let listaSueldos = [];
-
-for(let i = 0; i < listaPersonas.length; i++){
-    listaSueldos.push(listaPersonas[i].sueldo);
-}
-
-listaSueldos.sort((a, b) => a - b);
-
-console.log(`Lista de sueldos ordenados de menor a mayor:`);
-listaSueldos.forEach( (sueldo) => {
-    console.log(`N°${listaSueldos.indexOf(sueldo) + 1}: ${sueldo}`);
-});
 
