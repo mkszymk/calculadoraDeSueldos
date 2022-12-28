@@ -144,3 +144,19 @@ ol > li::marker{
         font-size: 12px;
     }
 }
+
+#clearList{
+    display: flex;
+    justify-content: center;
+}
+
+#clearBtn{
+    width: 14rem;
+    height: 2rem;
+    background-color: rgb(255, 223, 78);
+    font-weight: bold;
+}
+
+#clearBtn:hover{
+    background-color: rgb(230, 201, 75);
+}

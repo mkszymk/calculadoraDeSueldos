@@ -10,6 +10,7 @@ const formNombre = document.querySelector("#name");
 const formSueldo = document.querySelector("#sueldo");
 const formEsExtranjero = document.querySelector("#nacionalidad");
 const errorElement = document.querySelector("#error");
+const clearBtn = document.querySelector("#clearBtn");
 
 
 class Persona{
@@ -26,10 +27,9 @@ function showError(status){
     } else{
         errorElement.style.display = "none";
     }
-
 }
 
-function showResult(persona, liquido, aportes, impuestos){
+function showResult(persona, liquido, aportes, impuestos, toStorage){
         resultDiv.innerHTML += `
         <div class="indivResult">
             <p>${persona.nombre}</p>
@@ -41,6 +41,39 @@ function showResult(persona, liquido, aportes, impuestos){
             <p>${parseFloat(liquido).toLocaleString()}</p>
         </div>
         `;
+        if(toStorage){
+            const rowAdded = {
+                person: persona,
+                personLiquido: liquido,
+                personAportes: aportes,
+                personImpuestos: impuestos
+            };
+            addRowToStorage(rowAdded);
+        }
+}
+
+function clearList(){
+    resultDiv.innerHTML = "";
+    localStorage.removeItem('rows');
+}
+
+function loadList(){
+    const listInStorage = JSON.parse(localStorage.getItem('rows'));
+    if(listInStorage !== null){
+        listInStorage.forEach(row => {
+            showResult(row.person, row.personLiquido, row.personAportes, row.personImpuestos, false);
+        });
+    }
+ }
+
+function addRowToStorage(rowObject){
+    if(localStorage.getItem('rows') === null){
+        localStorage.setItem('rows', JSON.stringify([rowObject]));
+    }else{
+        const previousRows = JSON.parse(localStorage.getItem('rows'));
+        previousRows.push(rowObject);
+        localStorage.setItem('rows', JSON.stringify(previousRows));
+    }
 }
 
 const deducciones = (sueldo, montoAportes) => {
@@ -61,7 +94,6 @@ const aporteJubilatorio = (sueldo) => {
 
 const liquidacionIRNR = (sueldo) => {
     //IRNR es el impuesto que los extranjeros pagan si trabajan en Uruguay, siempre es 12%. El IRPF solo lo pagan los uruguayos, y el porcentaje es progresivo.
-
     return sueldo * 0.12;
 }
 
@@ -119,20 +151,6 @@ function liquidarSueldo(persona){
 
 }
 
-function mostrarResultados(persona){
-    if(persona.sueldo <= 0 || isNaN(persona.sueldo)){
-        console.log("Debes ingresar un sueldo válido para " + persona.nombre);
-    } else{
-        console.log(`---------- Liquidación de ${persona.nombre} ----------`);
-        console.log(`Sueldo nominal antes de impuestos: $${persona.sueldo} --- Aproximadamente ${(persona.sueldo / cotDolarUy).toFixed(0)} dólares.`);
-        console.log(`Es extranjero?: ${persona.esExtranjero ? "Sí." : "No."}`);
-        if(!persona.esExtranjero) console.log(`Aportes a la seguridad social: $${((persona.sueldo * (apSalud + apFrl)) + aporteJubilatorio(persona.sueldo)).toFixed(0)}.`);
-        console.log(`Impuestos: $${persona.esExtranjero ? (liquidacionIRNR(persona.sueldo).toFixed(0) + " -> IRNR.") : (liquidacionIRPF(persona.sueldo).toFixed(0) + " -> IRPF.")}`);
-        console.log(`Sueldo líquido: $${liquidarSueldo(persona)} --- Aproximadamente ${(liquidarSueldo(persona)/cotDolarUy).toFixed(0)} dólares.`);
-        console.log("");
-    }
-}
-
 form.onsubmit = (event) => {
     event.preventDefault();
     const nombreEnviado = formNombre.value;
@@ -146,8 +164,15 @@ form.onsubmit = (event) => {
         const sueldoLiquido = liquidarSueldo(p);
         const impuestos = nacionalidadEnviadaExtranjero ? (liquidacionIRNR(p.sueldo).toFixed(0)) : (liquidacionIRPF(p.sueldo).toFixed(0));
         const aportes = nacionalidadEnviadaExtranjero ? (0) : (((p.sueldo * (apSalud + apFrl)) + aporteJubilatorio(p.sueldo)).toFixed(0));
-        showResult(p, sueldoLiquido, aportes, impuestos);
+        showResult(p, sueldoLiquido, aportes, impuestos, true);
+
         form.reset()
     }
 }
+
+clearBtn.addEventListener("click",() => {
+    clearList();
+});
+
+loadList();
 
