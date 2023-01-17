@@ -145,18 +145,27 @@ ol > li::marker{
     }
 }
 
-#clearList{
+.btnCont{
     display: flex;
     justify-content: center;
+    margin: 1rem;
 }
 
-#clearBtn{
+.mBtn{
     width: 14rem;
     height: 2rem;
     background-color: rgb(255, 223, 78);
     font-weight: bold;
 }
 
-#clearBtn:hover{
+.mBtn:hover{
     background-color: rgb(230, 201, 75);
+}
+
+#clearBtn{
+    background-color: rgb(255, 127, 127);
+}
+
+#clearBtn:hover{
+    background-color: rgb(219, 107, 107);
 }

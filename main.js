@@ -11,6 +11,7 @@ const formSueldo = document.querySelector("#sueldo");
 const formEsExtranjero = document.querySelector("#nacionalidad");
 const errorElement = document.querySelector("#error");
 const clearBtn = document.querySelector("#clearBtn");
+const loadLiqs = document.querySelector("#loadLiqs");
 
 
 class Persona{
@@ -158,6 +159,12 @@ form.onsubmit = (event) => {
     const nacionalidadEnviadaExtranjero = formEsExtranjero.checked;
     if(sueldoEnviado <= 0 || isNaN(sueldoEnviado)){
         showError(true);
+    }else if(nombreEnviado == ""){
+        Swal.fire(
+            'Error',
+            'El nombre no puede estar vacío',
+            'error'
+          );
     }else{
         showError(false);
         const p = new Persona(nombreEnviado, sueldoEnviado, nacionalidadEnviadaExtranjero);
@@ -171,8 +178,45 @@ form.onsubmit = (event) => {
 }
 
 clearBtn.addEventListener("click",() => {
-    clearList();
+    Swal.fire({
+        title: 'Confirmar',
+        text: '¿Deseas borrar todas las liquidaciones?',
+        icon: 'warning',
+        showDenyButton: true,
+        confirmButtonText: 'Sí',
+        denyButtonText: 'No'
+      }).then(respuesta => {
+        if(respuesta.isConfirmed){
+            clearList();
+            Swal.fire('Liquidaciones limpiadas!', '', 'success');
+        }
+      });
+});
+
+loadLiqs.addEventListener("click", () => {
+    Swal.fire({
+        title: 'Cargar',
+        text: '¿Deseas cargar las liquidaciones de prueba? Las mismas sobreescribirán cualquier otra liquidación que esté en la tabla.',
+        showDenyButton: true,
+        confirmButtonText: 'Sí, cargar',
+        denyButtonText: 'Cancelar'
+    }).then(res => {
+        if(res.isConfirmed){
+            clearList();
+            fetch('/assets/liquidaciones.json')
+            .then( (res) => res.json())
+            .then( (data) => {
+                data.forEach(liq => {
+                    showResult(liq.person, liq.personLiquido, liq.personAportes, liq.personImpuestos, true);
+                });
+                Swal.fire('Éxito al cargar')
+            });
+        }
+    });
+
 });
 
 loadList();
+
+
 
