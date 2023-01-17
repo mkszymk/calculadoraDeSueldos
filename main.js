@@ -203,7 +203,7 @@ loadLiqs.addEventListener("click", () => {
     }).then(res => {
         if(res.isConfirmed){
             clearList();
-            fetch('/assets/liquidaciones.json')
+            fetch('./assets/liquidaciones.json')
             .then( (res) => res.json())
             .then( (data) => {
                 data.forEach(liq => {
